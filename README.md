@@ -6,6 +6,10 @@ sky.rb
 The official Ruby client for the [Sky database](http://skydb.io).
 This client provides a simple wrapper around the Sky HTTP-based API.
 
+## Installation
+
+    $ gem install skydb
+
 
 ## API
 
