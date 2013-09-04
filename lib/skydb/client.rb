@@ -283,12 +283,13 @@ class SkyDB
     # Executes a RESTful JSON over HTTP POST.
     def send(method, path, data=nil)
       # Generate a JSON request.
+      uri = URI.parse("http://#{host}:#{port}#{path}")
       request = case method
-        when :get then Net::HTTP::Get.new(path)
-        when :post then Net::HTTP::Post.new(path)
-        when :patch then Net::HTTP::Patch.new(path)
-        when :put then Net::HTTP::Put.new(path)
-        when :delete then Net::HTTP::Delete.new(path)
+        when :get then Net::HTTP::Get.new(uri)
+        when :post then Net::HTTP::Post.new(uri)
+        when :patch then Net::HTTP::Patch.new(uri)
+        when :put then Net::HTTP::Put.new(uri)
+        when :delete then Net::HTTP::Delete.new(uri)
         end
       request.add_field('Content-Type', 'application/json')
       request.body = JSON.generate(data, :max_nesting => 200) unless data.nil?
@@ -299,8 +300,7 @@ class SkyDB
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE #BAD
       end
 
-      uri = URI.parse("http://#{host}:#{port}#{path}")
-      response = http.start {|h| h.request(uri, request) }
+      response = http.start {|h| h.request(request) }
       
       # Parse the body as JSON.
       json = JSON.parse(response.body) rescue nil
