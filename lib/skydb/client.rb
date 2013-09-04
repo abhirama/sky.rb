@@ -299,7 +299,7 @@ class SkyDB
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE #BAD
       end
 
-      response = http.start(http.connection_for(URI.parse("http://#{host}:#{port}#{path}"))) {|h| h.request(request) }
+      response = http.request(URI.parse("http://#{host}:#{port}#{path}"), request)
       
       # Parse the body as JSON.
       json = JSON.parse(response.body) rescue nil
