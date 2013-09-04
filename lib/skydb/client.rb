@@ -282,18 +282,19 @@ class SkyDB
     
     # Executes a RESTful JSON over HTTP POST.
     def send(method, path, data=nil)
+      uri = "#{host}#{path}"
       # Generate a JSON request.
       request = case method
-        when :get then Net::HTTP::Get.new(path)
-        when :post then Net::HTTP::Post.new(path)
-        when :patch then Net::HTTP::Patch.new(path)
-        when :put then Net::HTTP::Put.new(path)
-        when :delete then Net::HTTP::Delete.new(path)
+        when :get then Net::HTTP::Get.new(uri)
+        when :post then Net::HTTP::Post.new(uri)
+        when :patch then Net::HTTP::Patch.new(uri)
+        when :put then Net::HTTP::Put.new(uri)
+        when :delete then Net::HTTP::Delete.new(uri)
         end
       request.add_field('Content-Type', 'application/json')
       request.body = JSON.generate(data, :max_nesting => 200) unless data.nil?
 
-      http = Net::HTTP::Persistent.new(host, port)
+      http = Net::HTTP::Persistent.new 'sky.rb'
       if ssl
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE #BAD
