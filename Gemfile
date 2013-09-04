@@ -1,4 +1,4 @@
 source "http://rubygems.org"
 gemspec
 
-gem 'connection_pool'
+gem 'net-http-persistent'

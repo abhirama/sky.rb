@@ -1,7 +1,6 @@
-require 'net/http'
+require 'net/http/persistent'
 require 'net/https'
 require 'json'
-require 'connection_pool'
 
 class SkyDB
   class Client
@@ -280,37 +279,27 @@ class SkyDB
     ####################################
     # HTTP Utilities
     ####################################
-
-    def self.http_pool
-      @@http_pool ||= ConnectionPool.new(:size => 10, :timeout => 5) { Net::HTTP::Get.new('/') }
-    end
     
     # Executes a RESTful JSON over HTTP POST.
     def send(method, path, data=nil)
-
-      response = nil
-
-      SkyDB::Client.http_pool.with do |request|
-        # Generate a JSON request.
-        case method
-          when :get then request.to_get
-          when :post then request.to_post
-          when :patch then request.to_patch
-          when :put then request.to_put
-          when :delete then request.to_delete
+      # Generate a JSON request.
+      request = case method
+        when :get then Net::HTTP::Get.new(path)
+        when :post then Net::HTTP::Post.new(path)
+        when :patch then Net::HTTP::Patch.new(path)
+        when :put then Net::HTTP::Put.new(path)
+        when :delete then Net::HTTP::Delete.new(path)
         end
-        request.path = path
-        request.add_field('Content-Type', 'application/json')
-        request.body = JSON.generate(data, :max_nesting => 200) unless data.nil?
+      request.add_field('Content-Type', 'application/json')
+      request.body = JSON.generate(data, :max_nesting => 200) unless data.nil?
 
-        http = Net::HTTP.new(host, port)
-        if ssl
-          http.use_ssl = true
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE #BAD
-        end
-
-        response = http.start {|h| h.request(request) }
+      http = Net::HTTP::Persistent.new(host, port)
+      if ssl
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE #BAD
       end
+
+      response = http.start {|h| h.request(request) }
       
       # Parse the body as JSON.
       json = JSON.parse(response.body) rescue nil
@@ -328,41 +317,5 @@ class SkyDB
         raise e
       end
     end
-  end
-end
-
-class Net::HTTPGenericRequest
-  def path=(p)
-    @path = p
-  end
-
-  def to_get
-    METHOD = 'GET'
-    REQUEST_HAS_BODY  = false
-    RESPONSE_HAS_BODY = true
-  end
-
-  def to_post
-    METHOD = 'POST'
-    REQUEST_HAS_BODY  = true
-    RESPONSE_HAS_BODY = true
-  end
-
-  def to_patch
-    METHOD = 'PATCH'
-    REQUEST_HAS_BODY  = true
-    RESPONSE_HAS_BODY = true
-  end
-
-  def to_put
-    METHOD = 'PUT'
-    REQUEST_HAS_BODY  = true
-    RESPONSE_HAS_BODY = true
-  end
-
-  def to_delete
-    METHOD = 'DELETE'
-    REQUEST_HAS_BODY  = false
-    RESPONSE_HAS_BODY = true
   end
 end
