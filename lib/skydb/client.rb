@@ -293,7 +293,8 @@ class SkyDB
       request.add_field('Content-Type', 'application/json')
       request.body = JSON.generate(data, :max_nesting => 200) unless data.nil?
 
-      http = Net::HTTP::Persistent.new 'sky.rb'
+      http = Net::HTTP::Persistent.new 'skydb'
+      http.add_socket_option([Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1])
       if ssl
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE #BAD
@@ -317,5 +318,12 @@ class SkyDB
         raise e
       end
     end
+  end
+end
+
+class Net::HTTP::Persistent
+  def add_socket_option(opt)
+    @original_socket_options ||= @socket_options
+    @socket_options = @original_socket_options + [opt]
   end
 end
