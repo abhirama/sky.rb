@@ -256,7 +256,7 @@ class SkyDB
       raise ArgumentError.new("Query definition required") if q.nil?
       path = '/tables/#{table.name}/query'
       if q.is_a?(Hash)
-        path += "prefix=#{q["prefix"]}" unless q['prefix'].nil?
+        path += "?prefix=#{q["prefix"]}" unless q['prefix'].nil?
         q = q['statements'] unless q['statements'].nil?
       end
       q = {:steps => q} if q.is_a?(Array)
