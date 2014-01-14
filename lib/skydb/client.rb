@@ -296,7 +296,11 @@ class SkyDB
         when :delete then Net::HTTP::Delete.new(path)
         end
       request.add_field('Content-Type', 'application/json')
-      request.body = JSON.generate(data, :max_nesting => 200) unless data.nil?
+      begin
+        request.body = JSON.generate(data, :max_nesting => 200) unless data.nil?
+      rescue JSON::GeneratorError => e
+        request.body = data unless data.nil?
+      end
 
       http = Net::HTTP::Persistent.new 'skydb'
       http.add_socket_option([Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1])
