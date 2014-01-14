@@ -254,7 +254,7 @@ class SkyDB
     def query(table, q)
       raise ArgumentError.new("Table required") if table.nil?
       raise ArgumentError.new("Query definition required") if q.nil?
-      path = '/tables/#{table.name}/query'
+      path = "/tables/#{table.name}/query"
       if q.is_a?(Hash)
         path += "?prefix=#{q["prefix"]}" unless q['prefix'].nil?
         q = q['statements'] unless q['statements'].nil?
