@@ -34,11 +34,11 @@ client = SkyDB::Client.new()
 # Retrieve a list of all tables.
 tables = client.get_tables()
 
-# Retrieve data about a single table.
-table = client.get_table()
-
 # Create a new table named 'foo'.
 table = client.create_table(:name => 'foo')
+
+# Retrieve data about a single table, in this case 'foo'
+table = client.get_table("foo")
 
 # Delete the 'foo' table.
 client.delete_table(table)
