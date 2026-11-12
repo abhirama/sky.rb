@@ -6,13 +6,15 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    addressable (2.3.2)
+    addressable (2.9.1)
+      public_suffix (>= 2.0.2, < 8.0)
     crack (0.3.2)
     metaclass (0.0.1)
     minitest (4.7.0)
     mocha (0.13.3)
       metaclass (~> 0.0.1)
     multi_json (1.7.2)
+    public_suffix (7.0.5)
     rake (10.0.4)
     simplecov (0.7.1)
       multi_json (~> 1.0)
